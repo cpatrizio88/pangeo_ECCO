@@ -24,6 +24,8 @@ dependencies:
   - ipywidgets
   - graphviz
   - nodejs
+  - pyresample
+  - xgcm
   - pip:
     - kubernetes
     - graphviz
