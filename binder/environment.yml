@@ -26,6 +26,8 @@ dependencies:
   - nodejs
   - pyresample
   - xgcm
+  - xmitgcm
+  - holoviews
   - pip:
     - kubernetes
     - graphviz
