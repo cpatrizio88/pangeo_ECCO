@@ -24,8 +24,19 @@ class LLCMapper:
         self.new_grid_lon, self.new_grid_lat = np.meshgrid(lon_tmp, lat_tmp)
         self.new_grid  = pyresample.geometry.GridDefinition(lons=self.new_grid_lon,
                                                             lats=self.new_grid_lat)
+        
+        #self.lon_0 = lon_0
 
-    def __call__(self, da, ax=None, projection=cart.crs.Robinson(), lon_0=-60, **plt_kwargs):
+        
+        
+    def __call__(self, da, ax=None, lon_0=180., projection_name='PlateCarree', **plt_kwargs):
+        
+        if projection_name == 'PlateCarree':
+            projection = cart.crs.PlateCarree(central_longitude=lon_0)
+        elif projection_name == 'Robinson':
+            projection = cart.crs.Robinson(central_longitude=lon_0)
+        else:
+            print('Projection name must be "PlateCarree" or "Robinson".')
 
         assert set(da.dims) == set(['face', 'j', 'i']), "da must have dimensions ['face', 'j', 'i']"
 
