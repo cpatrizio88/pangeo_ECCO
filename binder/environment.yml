@@ -27,6 +27,7 @@ dependencies:
   - pyresample
   - xgcm
   - xmitgcm
+  - cmocean
   - holoviews
   - pip:
     - kubernetes
