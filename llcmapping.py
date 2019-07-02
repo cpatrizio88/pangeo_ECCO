@@ -3,6 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import cartopy as cart
 import pyresample
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 
 
 class LLCMapper:
@@ -54,6 +55,31 @@ class LLCMapper:
 
         m = plt.axes(projection=projection)
         x,y = self.new_grid_lon, self.new_grid_lat
+        
+        ax= plt.gca()
+        
+        ax.gridlines(crs=cart.crs.PlateCarree(), linewidth=0.5, color='black', alpha=0.6, linestyle='-.', zorder=10)
+
+                    
+        pardiff = 30.
+        merdiff = 60.
+        par = np.arange(-90.,91.,pardiff)
+        mer = np.arange(-180.,180.,merdiff)
+
+        ax.set_xticks(mer, crs=ax.projection)
+        ax.set_yticks(par, crs=ax.projection)
+        lon_formatter = LongitudeFormatter(zero_direction_label=True)
+        lat_formatter = LatitudeFormatter()
+        ax.xaxis.set_major_formatter(lon_formatter)
+        ax.yaxis.set_major_formatter(lat_formatter)
+        ax.get_yaxis().set_tick_params(direction='out')
+        ax.get_xaxis().set_tick_params(direction='out')
+    
+        #Add this for fixed plotting bounds
+        #bnds = [lons.min().values, lons.max().values, lats.min().values, lats.max().values]
+    
+        #ax.set_extent((bnds[0], bnds[1], bnds[2], bnds[3]), crs=ax.projection)
+    
 
         # Find index where data is splitted for mapping
         split_lon_idx = round(x.shape[1]/(360/(lon_0 if lon_0>0 else lon_0+360)))
@@ -70,5 +96,5 @@ class LLCMapper:
             label = da.name
         if 'units' in da.attrs:
             label += ' [%s]' % da.attrs['units']
-        cb = plt.colorbar(p, shrink=0.4, label=label)
+        cb = plt.colorbar(p, shrink=0.7, label=label)
         return m, ax
