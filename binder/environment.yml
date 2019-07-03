@@ -29,6 +29,7 @@ dependencies:
   - xmitgcm
   - cmocean
   - holoviews
+  - xscale
   - pip:
     - kubernetes
     - graphviz
