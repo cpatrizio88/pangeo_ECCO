@@ -13,8 +13,10 @@ dependencies:
   - zarr
   - matplotlib
   - numcodecs
+  - python-dateutil
   - python-blosc
   - lz4
+  - llvmlite
   - nomkl
   - numba
   - nbserverproxy
