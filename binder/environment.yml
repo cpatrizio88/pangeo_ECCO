@@ -16,12 +16,14 @@ dependencies:
   - python-blosc
   - lz4
   - nomkl
+  - numba
   - nbserverproxy
   - jupyter
   - jupyterlab=0.35
   - jupyterlab_launcher
   - jupyter_client
   - ipyvolume
+  - widgetsnbextension
   - nodejs
   - ipywidgets
   - graphviz
