@@ -1,0 +1,3 @@
+[submodule "xscale"]
+	path = xscale
+	url = https://github.com/serazing/xscale.git
