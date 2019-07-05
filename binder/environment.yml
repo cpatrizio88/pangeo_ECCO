@@ -4,6 +4,9 @@ channels:
 dependencies:
   - python=3.6
   - xarray
+  - google-api-python-client 
+  - google-auth-httplib2 
+  - google-auth-oauthlib
   - dask
   - cartopy
   - distributed
