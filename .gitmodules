@@ -1,3 +1,6 @@
 [submodule "xscale"]
 	path = xscale
 	url = https://github.com/serazing/xscale.git
+[submodule "mvstats"]
+	path = mvstats
+	url = https://github.com/cpatrizio88/mvstats
