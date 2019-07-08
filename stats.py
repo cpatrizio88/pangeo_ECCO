@@ -4,6 +4,8 @@
 """Main module."""
 import xarray as xr
 import numpy as np
+from scipy import signal
+from functools import partial
 
 def cov(x, y, time_axis = 0, lagx=0, lagy=0):
     """
@@ -183,4 +185,26 @@ def detrend_ND_xr(y, rolling_mean_window = 0):
 
     #5. Subtract the estimated trend from y
     det = y - y_trend + y.mean(dim='time')
+    return det
 
+
+def butter_lowpass(cutoff, fs, order=5):
+    nyq = 0.5 * fs
+    normal_cutoff = cutoff / nyq
+    b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
+    return b, a
+
+def butter_lowpass_filter(data, cutoff, fs, order=5):
+    b, a = butter_lowpass(cutoff, fs, order=order)
+    y = signal.filtfilt(b, a, data, axis=0)
+    return y
+
+
+def butter_lowpass_filter_xr(data, cutoff, fs, order=5):
+    b, a = butter_lowpass(cutoff, fs, order=order)
+    y = xr.apply_ufunc(partial(signal.filtfilt, b, a),
+                              data.chunk(),
+                              dask='parallelized',
+                              output_dtypes=[data.dtype],
+                              kwargs={'axis': 0}).compute()
+    return y
