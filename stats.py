@@ -7,6 +7,12 @@ import numpy as np
 from scipy import signal
 from functools import partial
 
+def anom(y):
+    # Surface heat flux
+    y_clim = y.groupby('time.month').mean(dim='time')
+    y_anom = y.groupby('time.month') - y_clim
+    return y_anom
+
 def cov(x, y, time_axis = 0, lagx=0, lagy=0):
     """
     Computes covariance between x and y along time dimension, accounting for given lags (if any)
