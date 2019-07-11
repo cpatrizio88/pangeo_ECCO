@@ -83,12 +83,18 @@ class LLCMapper:
 
         # Find index where data is splitted for mapping
         split_lon_idx = round(x.shape[1]/(360/(lon_0 if lon_0>0 else lon_0+360)))
-
+         
+        #nlevels=60
 
         p = m.pcolormesh(x[:,:split_lon_idx], y[:,:split_lon_idx], field[:,:split_lon_idx],
                          vmax=vmax, vmin=vmin, transform=cart.crs.PlateCarree(), zorder=1, **plt_kwargs)
         p = m.pcolormesh(x[:,split_lon_idx:], y[:,split_lon_idx:], field[:,split_lon_idx:],
                          vmax=vmax, vmin=vmin, transform=cart.crs.PlateCarree(), zorder=2, **plt_kwargs)
+        
+        #p = m.contourf(x, y, field,
+         #                vmax=vmax, vmin=vmin, transform=cart.crs.PlateCarree(), extend='both', levels=nlevels, zorder=1, **plt_kwargs)
+        #p = m.contourf(x[:,split_lon_idx:], y[:,split_lon_idx:], field[:,split_lon_idx:],
+        #                 vmax=vmax, vmin=vmin, transform=cart.crs.PlateCarree(), levels=60, zorder=2, **plt_kwargs)
 
         m.add_feature(cart.feature.LAND, facecolor='0.5', zorder=3)
         label = ''
@@ -96,5 +102,10 @@ class LLCMapper:
             label = da.name
         if 'units' in da.attrs:
             label += ' [%s]' % da.attrs['units']
+            
+        #sm = plt.cm.ScalarMappable(cmap=plt_kwargs['cmap'])
+        #sm.set_array(field)
+        #sm.set_clim(vmin, vmax)
+        #limits = np.linspace(vmin, vmax, nlevels)
         cb = plt.colorbar(p, shrink=0.7, label=label)
         return m, ax
