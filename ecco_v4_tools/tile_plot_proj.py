@@ -250,9 +250,9 @@ def plot_proj_to_latlon_grid(lons, lats, data,
 #            print ('ylabels', xlabels[:])
         
          #%%
-        ax.add_feature(cfeature.LAND, edgecolor='k', facecolor='grey')
+        ax.add_feature(cfeature.LAND, edgecolor='k', facecolor='grey', zorder=30)
         #ax.coastlines()
-        ax.add_feature(cfeature.COASTLINE,linewidth=0.1)
+        ax.add_feature(cfeature.COASTLINE,linewidth=0.1, zorder=30)
     
     #Add this for better lat/lon labeling
     ax= plt.gca()
@@ -270,10 +270,11 @@ def plot_proj_to_latlon_grid(lons, lats, data,
     ax.yaxis.set_major_formatter(lat_formatter)
     ax.get_yaxis().set_tick_params(direction='out')
     ax.get_xaxis().set_tick_params(direction='out')
+
     
     #Add this for fixed plotting bounds
     bnds = [lons.min().values, lons.max().values, lats.min().values, lats.max().values]
-    
+     
     ax.set_extent((bnds[0], bnds[1], bnds[2], bnds[3]), crs=ax.projection)
     
     #Adjust colorbar depending on longitude limits

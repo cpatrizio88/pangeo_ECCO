@@ -12,7 +12,7 @@ except ImportError:
 
 from .get_basin import get_basin_mask
 from .ecco_utils import get_llc_grid
-from ecco_v4_py import vector_calc
+from ecco_v4_tools import vector_calc
 
 # Define constants
 # These are chosen (for now) to match gcmfaces
