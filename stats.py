@@ -7,11 +7,29 @@ import numpy as np
 from scipy import signal
 from functools import partial
 
+# Wrap it into a simple function
+def season_mean(ds, calendar='standard'):
+    # Make a DataArray of season/year groups
+    year_season = xr.DataArray(ds.time.to_index().to_period(freq='Q-NOV').to_timestamp(how='E'),
+                               coords=[ds.time], name='year_season')
+
+    # Make a DataArray with the number of days in each month, size = len(time)
+    month_length = xr.DataArray(get_dpm(ds.time.to_index(), calendar=calendar),
+                                coords=[ds.time], name='month_length')
+    # Calculate the weights by grouping by 'time.season'
+    weights = month_length.groupby('time.season') / month_length.groupby('time.season').sum()
+
+    # Test that the sum of the weights for each season is 1.0
+    np.testing.assert_allclose(weights.groupby('time.season').sum().values, np.ones(4))
+
+    # Calculate the weighted average
+    return (ds * weights).groupby('time.season').sum(dim='time')
+
 def anom(y):
     # Surface heat flux
     y_clim = y.groupby('time.month').mean(dim='time')
     y_anom = y.groupby('time.month') - y_clim
-    return y_anom
+    return y_anom, y_clim
 
 def cov(x, y, time_axis = 0, lagx=0, lagy=0):
     """

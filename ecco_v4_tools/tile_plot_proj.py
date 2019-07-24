@@ -19,8 +19,7 @@ import cartopy.feature as cfeature
 from .resample_to_latlon import resample_to_latlon
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
-#import matplotlib.ticker as mticker
-#from mpl_toolkits.axes_grid1 import make_axes_locatable
+import matplotlib.ticker as mticker
 
 #add to change plotting parameters
 matplotlib.rcParams.update({'font.size': 22})
@@ -54,15 +53,16 @@ def plot_proj_to_latlon_grid(lons, lats, data,
                              user_lon_0 = 0,
                              lat_lim = 50, 
                              levels = 21, 
+                             bnds=[0,359,-90,90],
                              cmap='jet', 
                              dx=.25, 
                              dy=.25,
                              units='',
                              show_colorbar = False, 
-                             show_grid_lines = False,
+                             show_grid_lines = True,
                              show_grid_labels = False,
-		 	     grid_linewidth = 1, 
-	   	 	     grid_linestyle = '--', 
+		 	     grid_linewidth = 0.5, 
+	   	 	     grid_linestyle = '-.', 
                              subplot_grid=None,
                              less_output=True,
                              **kwargs):
@@ -226,41 +226,20 @@ def plot_proj_to_latlon_grid(lons, lats, data,
 			    show_grid_lines = False,
                             levels=levels,
                             show_grid_labels = False)
-			    
-                    
-        if show_grid_lines :
-            gl=ax.gridlines(crs=ccrs.PlateCarree(), 
-                                  linewidth=grid_linewidth,
-				  color='black', 	
-                                  alpha=0.3, 
-				  linestyle=grid_linestyle, 
-                                  draw_labels = show_grid_labels)
-
-            #format latitude and longitude labels
-            #gl.ylabels_right=False 
-            #gl.xlabels_top=False
-#            gl.xformatter = LONGITUDE_FORMATTER
-#            gl.yformatter = LATITUDE_FORMATTER
-#            ax.get_yaxis().set_tick_params(direction='out')
-#            ax.get_xaxis().set_tick_params(direction='out')
-            #ax.get_xticklabels()
-#            xlabels=ax.get_xticklabels()
-#            ylabels = ax.get_yticklabels()
-#            print ('xlabels', xlabels[:])
-#            print ('ylabels', xlabels[:])
-        
-         #%%
-        ax.add_feature(cfeature.LAND, edgecolor='k', facecolor='grey', zorder=30)
-        #ax.coastlines()
-        ax.add_feature(cfeature.COASTLINE,linewidth=0.1, zorder=30)
     
     #Add this for better lat/lon labeling
     ax= plt.gca()
                     
     pardiff = 30.
     merdiff = 60.
-    par = np.arange(-90.,91.,pardiff)
-    mer = np.arange(-180.,180.,merdiff)
+        
+    if np.abs(bnds[1] - bnds[0]) < 90:
+        merdiff = 15.
+    if np.abs(bnds[3]- bnds[2]) < 90:
+        pardiff = 15.
+            
+    par = np.arange(-90.,90.+pardiff,pardiff)
+    mer = np.arange(-180.,180.+merdiff,merdiff)
     
     ax.set_xticks(mer, crs=ax.projection)
     ax.set_yticks(par, crs=ax.projection)
@@ -270,12 +249,25 @@ def plot_proj_to_latlon_grid(lons, lats, data,
     ax.yaxis.set_major_formatter(lat_formatter)
     ax.get_yaxis().set_tick_params(direction='out')
     ax.get_xaxis().set_tick_params(direction='out')
-
     
-    #Add this for fixed plotting bounds
-    bnds = [lons.min().values, lons.max().values, lats.min().values, lats.max().values]
-     
-    ax.set_extent((bnds[0], bnds[1], bnds[2], bnds[3]), crs=ax.projection)
+    ax.add_feature(cfeature.LAND, edgecolor='k', facecolor='grey', zorder=10)
+    ax.add_feature(cfeature.COASTLINE,linewidth=0.1, zorder=10)
+    
+    if isinstance(ax.projection, ccrs.NorthPolarStereo):
+        ax.set_extent([-180, 180, lat_lim, 90], ccrs.PlateCarree())
+        if not less_output:
+            print('North Polar Projection')
+    elif isinstance(ax.projection, ccrs.SouthPolarStereo):
+        ax.set_extent([-180, 180, -90, lat_lim], ccrs.PlateCarree())
+        if not less_output:
+            print('South Polar Projection')
+    else:
+        ax.set_extent((bnds[0], bnds[1], bnds[2], bnds[3]), ccrs.PlateCarree())
+        
+    if show_grid_lines:
+        gl=ax.gridlines(crs=ccrs.PlateCarree(), linewidth=grid_linewidth, color='black', alpha=0.6, linestyle=grid_linestyle, zorder=20)
+        gl.xlocator = mticker.FixedLocator(mer)
+        gl.ylocator = mticker.FixedLocator(par)
     
     #Adjust colorbar depending on longitude limits
     if show_colorbar:

@@ -3,6 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import cartopy as cart
 import pyresample
+import matplotlib.ticker as mticker
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 
 
@@ -13,7 +14,7 @@ class LLCMapper:
         # Extract LLC 2D coordinates
         lons_1d = ds.XC.values.ravel()
         lats_1d = ds.YC.values.ravel()
-
+        
         # Define original grid
         self.orig_grid = pyresample.geometry.SwathDefinition(lons=lons_1d, lats=lats_1d)
 
@@ -30,7 +31,7 @@ class LLCMapper:
 
         
         
-    def __call__(self, da, ax=None, lon_0=180., projection_name='PlateCarree', **plt_kwargs):
+    def __call__(self, da, ax=None, bnds=[0,360,-90,90], lon_0=180., projection_name='PlateCarree', **plt_kwargs):
         
         if projection_name == 'PlateCarree':
             projection = cart.crs.PlateCarree(central_longitude=lon_0)
@@ -43,6 +44,10 @@ class LLCMapper:
 
         if ax is None:
             fig, ax = plt.subplots(figsize=(12, 6))
+            
+        #print(self.orig_grid.shape)
+        #print(da.values.shape)
+        #print(self.new_grid.shape)
 
         field = pyresample.kd_tree.resample_nearest(self.orig_grid, da.values,
                                                     self.new_grid,
@@ -56,45 +61,45 @@ class LLCMapper:
         m = plt.axes(projection=projection)
         x,y = self.new_grid_lon, self.new_grid_lat
         
-        ax= plt.gca()
-        
-        ax.gridlines(crs=cart.crs.PlateCarree(), linewidth=0.5, color='black', alpha=0.6, linestyle='-.', zorder=10)
+        #ax= plt.gca()
 
                     
         pardiff = 30.
         merdiff = 60.
-        par = np.arange(-90.,91.,pardiff)
-        mer = np.arange(-180.,180.,merdiff)
-
-        ax.set_xticks(mer, crs=ax.projection)
-        ax.set_yticks(par, crs=ax.projection)
+        
+        if np.abs(bnds[1] - bnds[0]) < 90:
+            merdiff = 15.
+        if np.abs(bnds[3]- bnds[2]) < 90:
+            pardiff = 15.
+            
+        par = np.arange(-90.,90.+pardiff,pardiff)
+        mer = np.arange(-180.,180.+merdiff,merdiff)
+            
+        ax=plt.gca()
+        ax.set_xticks(mer, crs=cart.crs.PlateCarree())
+        ax.set_yticks(par, crs=cart.crs.PlateCarree())
         lon_formatter = LongitudeFormatter(zero_direction_label=True)
         lat_formatter = LatitudeFormatter()
         ax.xaxis.set_major_formatter(lon_formatter)
         ax.yaxis.set_major_formatter(lat_formatter)
         ax.get_yaxis().set_tick_params(direction='out')
         ax.get_xaxis().set_tick_params(direction='out')
+        
+        ax.set_extent((bnds[0], bnds[1], bnds[2], bnds[3]), crs=cart.crs.PlateCarree())
     
-        #Add this for fixed plotting bounds
-        #bnds = [lons.min().values, lons.max().values, lats.min().values, lats.max().values]
-    
-        #ax.set_extent((bnds[0], bnds[1], bnds[2], bnds[3]), crs=ax.projection)
-    
-
         # Find index where data is splitted for mapping
         split_lon_idx = round(x.shape[1]/(360/(lon_0 if lon_0>0 else lon_0+360)))
-         
-        #nlevels=60
+
 
         p = m.pcolormesh(x[:,:split_lon_idx], y[:,:split_lon_idx], field[:,:split_lon_idx],
                          vmax=vmax, vmin=vmin, transform=cart.crs.PlateCarree(), zorder=1, **plt_kwargs)
         p = m.pcolormesh(x[:,split_lon_idx:], y[:,split_lon_idx:], field[:,split_lon_idx:],
                          vmax=vmax, vmin=vmin, transform=cart.crs.PlateCarree(), zorder=2, **plt_kwargs)
         
-        #p = m.contourf(x, y, field,
-         #                vmax=vmax, vmin=vmin, transform=cart.crs.PlateCarree(), extend='both', levels=nlevels, zorder=1, **plt_kwargs)
-        #p = m.contourf(x[:,split_lon_idx:], y[:,split_lon_idx:], field[:,split_lon_idx:],
-        #                 vmax=vmax, vmin=vmin, transform=cart.crs.PlateCarree(), levels=60, zorder=2, **plt_kwargs)
+                
+        gl=ax.gridlines(crs=cart.crs.PlateCarree(), linewidth=0.5, color='black', alpha=0.6, linestyle='-.', zorder=20)
+        gl.xlocator = mticker.FixedLocator(mer)
+        gl.ylocator = mticker.FixedLocator(par)
 
         m.add_feature(cart.feature.LAND, facecolor='0.5', zorder=3)
         label = ''
@@ -102,10 +107,8 @@ class LLCMapper:
             label = da.name
         if 'units' in da.attrs:
             label += ' [%s]' % da.attrs['units']
-            
-        #sm = plt.cm.ScalarMappable(cmap=plt_kwargs['cmap'])
-        #sm.set_array(field)
-        #sm.set_clim(vmin, vmax)
-        #limits = np.linspace(vmin, vmax, nlevels)
-        cb = plt.colorbar(p, shrink=0.7, label=label)
+        orient = 'vertical'
+        if np.abs(bnds[1] - bnds[0]) > (np.abs(bnds[3] - bnds[2]) - 20):
+            orient = 'horizontal'
+        cb = plt.colorbar(p, fraction=0.07, pad=0.1, label=label, orientation=orient)
         return m, ax
