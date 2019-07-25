@@ -1,2 +1,0 @@
-fsspec
-xmitgcm>=0.4.1
