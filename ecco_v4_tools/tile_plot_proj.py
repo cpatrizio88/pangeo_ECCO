@@ -50,7 +50,6 @@ def discrete_cmap(N, base_cmap=None):
 def plot_proj_to_latlon_grid(lons, lats, data, 
                              projection_type = 'robin', 
                              plot_type = 'pcolormesh', 
-                             user_lon_0 = 0,
                              lat_lim = 50, 
                              levels = 21, 
                              bnds=[0,359,-90,90],
@@ -122,10 +121,14 @@ def plot_proj_to_latlon_grid(lons, lats, data,
     less_output : string, optional
         debugging flag, don't print if True
     """
-
+    
     #%%    
     cmin = np.nanmin(data)
     cmax = np.nanmax(data)
+    
+    
+    # Central longitude must be between -180 and 180 (greenwich meridian is 0) 
+    user_lon_0 = (bnds[0] + bnds[1])/2 - 360
 
     for key in kwargs:
         if key == "cmin":
@@ -233,7 +236,7 @@ def plot_proj_to_latlon_grid(lons, lats, data,
     pardiff = 30.
     merdiff = 60.
         
-    if np.abs(bnds[1] - bnds[0]) < 90:
+    if np.abs(bnds[1] - bnds[0]) < 120:
         merdiff = 15.
     if np.abs(bnds[3]- bnds[2]) < 90:
         pardiff = 15.
@@ -254,11 +257,11 @@ def plot_proj_to_latlon_grid(lons, lats, data,
     ax.add_feature(cfeature.COASTLINE,linewidth=0.1, zorder=10)
     
     if isinstance(ax.projection, ccrs.NorthPolarStereo):
-        ax.set_extent([-180, 180, lat_lim, 90], ccrs.PlateCarree())
+        ax.set_extent([0, 359, lat_lim, 90], ccrs.PlateCarree())
         if not less_output:
             print('North Polar Projection')
     elif isinstance(ax.projection, ccrs.SouthPolarStereo):
-        ax.set_extent([-180, 180, -90, lat_lim], ccrs.PlateCarree())
+        ax.set_extent([0, 359, -90, lat_lim], ccrs.PlateCarree())
         if not less_output:
             print('South Polar Projection')
     else:

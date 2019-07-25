@@ -31,7 +31,13 @@ class LLCMapper:
 
         
         
-    def __call__(self, da, ax=None, bnds=[0,360,-90,90], lon_0=180., projection_name='PlateCarree', **plt_kwargs):
+    def __call__(self, da, ax=None, bnds=[0,360,-90,90], projection_name='PlateCarree', **plt_kwargs):
+        
+         # Central longitude must be between -180 and 180 (greenwich meridian is 0) 
+        #lon_0 = (bnds[0] + bnds[1])/2 - 360
+        lon_0 = (bnds[0] + bnds[1])/2 
+        
+        #print('lon_0', lon_0)
         
         if projection_name == 'PlateCarree':
             projection = cart.crs.PlateCarree(central_longitude=lon_0)
@@ -102,6 +108,7 @@ class LLCMapper:
         gl.ylocator = mticker.FixedLocator(par)
 
         m.add_feature(cart.feature.LAND, facecolor='0.5', zorder=3)
+        ax.add_feature(cart.feature.COASTLINE,linewidth=0.1, zorder=10)
         label = ''
         if da.name is not None:
             label = da.name
@@ -111,4 +118,5 @@ class LLCMapper:
         if np.abs(bnds[1] - bnds[0]) > (np.abs(bnds[3] - bnds[2]) - 20):
             orient = 'horizontal'
         cb = plt.colorbar(p, fraction=0.07, pad=0.1, label=label, orientation=orient)
+        
         return m, ax
