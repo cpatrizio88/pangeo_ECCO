@@ -73,6 +73,8 @@ class LLCMapper:
         pardiff = 30.
         merdiff = 60.
         
+        if np.abs(bnds[1] - bnds[0]) < 180:
+            merdiff = 30.
         if np.abs(bnds[1] - bnds[0]) < 90:
             merdiff = 15.
         if np.abs(bnds[3]- bnds[2]) < 90:
@@ -103,19 +105,19 @@ class LLCMapper:
                          vmax=vmax, vmin=vmin, transform=cart.crs.PlateCarree(), zorder=2, **plt_kwargs)
         
                 
-        gl=ax.gridlines(crs=cart.crs.PlateCarree(), linewidth=0.5, color='black', alpha=0.6, linestyle='-.', zorder=20)
+        gl=ax.gridlines(crs=cart.crs.PlateCarree(), linewidth=0.5, color='black', alpha=0.6, linestyle='-.', zorder=10)
         gl.xlocator = mticker.FixedLocator(mer)
         gl.ylocator = mticker.FixedLocator(par)
 
         m.add_feature(cart.feature.LAND, facecolor='0.5', zorder=3)
-        ax.add_feature(cart.feature.COASTLINE,linewidth=0.1, zorder=10)
+        m.add_feature(cart.feature.COASTLINE,linewidth=0.5, zorder=15)
         label = ''
         if da.name is not None:
             label = da.name
         if 'units' in da.attrs:
             label += ' [%s]' % da.attrs['units']
         orient = 'vertical'
-        if np.abs(bnds[1] - bnds[0]) > (np.abs(bnds[3] - bnds[2]) - 20):
+        if np.abs(bnds[1] - bnds[0]) > (np.abs(bnds[3] - bnds[2]) - 10):
             orient = 'horizontal'
         cb = plt.colorbar(p, fraction=0.07, pad=0.1, label=label, orientation=orient)
         
