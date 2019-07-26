@@ -52,7 +52,7 @@ dependencies:
   - numcodecs
   - python-blosc
   - lz4
-  - gcsfs
+  - gcsfs=0.2.3
   - s3fs
   # jupyter-related
   - ipyleaflet
