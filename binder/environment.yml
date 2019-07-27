@@ -3,6 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - python=3.7
+  - dask-kubernetes
   # core scipy packages
   - numpy
   - scipy
