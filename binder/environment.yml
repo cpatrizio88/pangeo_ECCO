@@ -58,6 +58,7 @@ dependencies:
   - ipyleaflet
   # xarray-related
   - xgcm
+  - xmitgcm
   - xrft
   - pip
   - pip:
