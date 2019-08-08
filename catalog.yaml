@@ -29,7 +29,7 @@ sources:
     args:
       urlpath: 'gcs://pangeo-data/ecco/eccov4r3'
       storage_options:
-        token: anon
+        token: browser
       consolidated: True
 
   SOSE:

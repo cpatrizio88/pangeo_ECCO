@@ -6,6 +6,10 @@ import pyresample
 import matplotlib.ticker as mticker
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 
+#For offline use, we need the land features saved locally
+cart.config['data_dir']= '~/.local/share/cartopy/shapefiles/natural_earth/physical'
+cart.config['pre_existing_data_dir']= '~/.local/share/cartopy/shapefiles/natural_earth/physical'
+
 
 class LLCMapper:
 
@@ -108,9 +112,11 @@ class LLCMapper:
         gl=ax.gridlines(crs=cart.crs.PlateCarree(), linewidth=0.5, color='black', alpha=0.6, linestyle='-.', zorder=10)
         gl.xlocator = mticker.FixedLocator(mer)
         gl.ylocator = mticker.FixedLocator(par)
+        
+        #ax.set_facecolor('grey')
 
-        m.add_feature(cart.feature.LAND, facecolor='0.5', zorder=3)
-        m.add_feature(cart.feature.COASTLINE,linewidth=0.5, zorder=15)
+        #m.add_feature(cart.feature.LAND, facecolor='0.5', zorder=3)
+        #m.add_feature(cart.feature.COASTLINE,linewidth=0.5, zorder=15)
         label = ''
         if da.name is not None:
             label = da.name

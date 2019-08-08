@@ -3,7 +3,6 @@ channels:
   - conda-forge
 dependencies:
   - python=3.7
-  - dask-kubernetes
   # core scipy packages
   - numpy
   - scipy
@@ -53,13 +52,12 @@ dependencies:
   - numcodecs
   - python-blosc
   - lz4
-  - gcsfs=0.2.3
+  - gcsfs
   - s3fs
   # jupyter-related
   - ipyleaflet
   # xarray-related
   - xgcm
-  - xmitgcm
   - xrft
   - pip
   - pip:

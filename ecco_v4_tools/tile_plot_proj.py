@@ -128,7 +128,12 @@ def plot_proj_to_latlon_grid(lons, lats, data,
     
     
     # Central longitude must be between -180 and 180 (greenwich meridian is 0) 
-    user_lon_0 = (bnds[0] + bnds[1])/2 - 360
+    user_lon_0 = (bnds[0] + bnds[1])/2 
+    
+    if np.abs(user_lon_0) > 180:
+        user_lon_0 = user_lon_0 - 180
+        
+    print('user_lon_0', user_lon_0)
 
     for key in kwargs:
         if key == "cmin":
